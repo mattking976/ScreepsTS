@@ -1,5 +1,4 @@
 import { Roles, States } from 'Helpers/CreepData';
-import { Brain } from 'AI/Brain';
 import { ErrorMapper } from 'utils/ErrorMapper';
 import roleBuilder from 'Roles/Builder';
 import roleHarvester from 'Roles/Harvester';
@@ -14,7 +13,7 @@ declare global {
   // creep base memory
   interface CreepMemory {
     role: string;
-    sourceID: Id<Source>;
+    sourceID?: Id<Source>;
     state: string;
   }
 }
@@ -23,7 +22,6 @@ const maxHarvesters = 4;
 const maxHaulers = 4;
 const maxUpgraders = 2;
 const maxBuilders = 2;
-const brain: Brain = new Brain();
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -48,23 +46,24 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   if (harvesters.length < maxHarvesters) {
     const newName = 'Harvester' + Game.time.toString();
+    console.log('Spawning harvester');
     Game.spawns.Spawn1.spawnCreep([WORK, WORK, MOVE], newName, {
-      memory: { role: 'harvester', sourceID: brain.setSourceAtBirth(), state: States.Idle }
+      memory: { role: Roles.Harvester, sourceID: undefined, state: States.Idle }
     });
   } else if (haulers.length < maxHaulers) {
     const newName = 'Hauler' + Game.time.toString();
     Game.spawns.Spawn1.spawnCreep([CARRY, CARRY, MOVE, MOVE], newName, {
-      memory: { role: 'hauler', sourceID: brain.setSourceAtBirth(), state: States.Idle }
+      memory: { role: Roles.Hauler, sourceID: undefined, state: States.Idle }
     });
   } else if (upgraders.length < maxUpgraders) {
     const newName = 'Upgrader' + Game.time.toString();
     Game.spawns.Spawn1.spawnCreep([WORK, CARRY, MOVE], newName, {
-      memory: { role: 'upgrader', sourceID: brain.setSourceAtBirth(), state: States.Idle }
+      memory: { role: Roles.Upgrader, sourceID: undefined, state: States.Idle }
     });
   } else if (builders.length < maxBuilders) {
     const newName = 'Builder' + Game.time.toString();
     Game.spawns.Spawn1.spawnCreep([WORK, WORK, CARRY, MOVE], newName, {
-      memory: { role: 'builder', sourceID: brain.setSourceAtBirth(), state: States.Idle }
+      memory: { role: Roles.Builder, sourceID: undefined, state: States.Idle }
     });
   }
 
