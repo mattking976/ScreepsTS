@@ -1,25 +1,32 @@
 // Upgrader AI code
-const states = { Harvesting: 'Harvesting', Upgrading: 'Upgrading', Idle: 'Idle' };
+
+import { States } from 'Helpers/CreepData';
 
 const roleUpgrader = {
   /** @param creep **/
   run(creep: Creep): void {
-    const source = Game.getObjectById(creep.memory.sourceID);
-    if (source != null) {
-      if (creep.harvest(source) === ERR_NOT_IN_RANGE && creep.store.getFreeCapacity() > 0) {
-        creep.moveTo(source);
-        creep.memory.state = states.Harvesting;
-      } else if (!(creep.store.getFreeCapacity() > 0) || !(source.energy > 0)) {
-        if (creep.room.controller) {
-          if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(creep.room.controller);
-            creep.memory.state = states.Upgrading;
-          }
-        }
+    if (creep.memory.state === States.Upgrading && creep.store[RESOURCE_ENERGY] === 0) {
+      creep.memory.state = States.Harvesting;
+    }
+    if (!(creep.memory.state === States.Upgrading) && creep.store.getFreeCapacity() === 0) {
+      creep.memory.state = States.Upgrading;
+    }
+
+    if (creep.memory.state === States.Upgrading && creep.room.controller) {
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(creep.room.controller);
       }
     } else {
-      creep.say('This Source does not exist');
-      creep.memory.state = states.Idle;
+      const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES, {
+        filter: Resource => Resource.resourceType === RESOURCE_ENERGY
+      });
+
+      const closestDroppedEnergy = creep.pos.findClosestByRange(droppedEnergy);
+      if (closestDroppedEnergy) {
+        if (creep.pickup(closestDroppedEnergy) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(closestDroppedEnergy);
+        }
+      }
     }
   }
 };

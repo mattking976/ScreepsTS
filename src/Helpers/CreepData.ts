@@ -1,4 +1,5 @@
 export const Roles = {
+  ColdHarvester: 'ColdHarvester',
   Harvester: 'Harvester',
   Upgrader: 'Upgrader',
   Hauler: 'Hauler',
