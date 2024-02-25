@@ -1,6 +1,8 @@
 import { Roles, States } from 'Helpers/CreepData';
+import { Brain } from 'AI/Brain';
 import { ErrorMapper } from 'utils/ErrorMapper';
 import roleBuilder from 'Roles/Builder';
+import roleColdHarvester from 'Roles/ColdStartHavester';
 import roleHarvester from 'Roles/Harvester';
 import roleHauler from 'Roles/Hauler';
 import roleUpgrader from 'Roles/Upgrader';
@@ -23,6 +25,8 @@ const maxHaulers = 4;
 const maxUpgraders = 2;
 const maxBuilders = 2;
 
+const brain = new Brain(false);
+
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
@@ -32,6 +36,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       delete Memory.creeps[name];
     }
   }
+
   // number of harvesters in play
   const harvesters = _.filter(Game.creeps, creep => creep.memory.role === Roles.Harvester);
 
@@ -46,9 +51,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   if (harvesters.length < maxHarvesters) {
     const newName = 'Harvester' + Game.time.toString();
-    console.log('Spawning harvester');
     Game.spawns.Spawn1.spawnCreep([WORK, WORK, MOVE], newName, {
-      memory: { role: Roles.Harvester, sourceID: undefined, state: States.Idle }
+      memory: {
+        role: Roles.Harvester,
+        sourceID: undefined,
+        state: States.Idle
+      }
     });
   } else if (haulers.length < maxHaulers) {
     const newName = 'Hauler' + Game.time.toString();
@@ -70,6 +78,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // assigning role ai to creeps.
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
+    if (creep.memory.role === Roles.ColdHarvester) {
+      roleColdHarvester.run(creep);
+      continue;
+    }
     if (creep.memory.role === Roles.Harvester) {
       roleHarvester.run(creep);
       continue;
@@ -85,6 +97,16 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (creep.memory.role === Roles.Hauler) {
       roleHauler.run(creep);
       continue;
+    }
+  }
+
+  brain.coldStart();
+  // brain functions for automated room building
+  for (const room in Game.rooms) {
+    const roomLevel = Game.rooms[room].controller?.level;
+    const currentRoom = Game.rooms[room];
+    if (roomLevel) {
+      brain.buildingswitcher(roomLevel, currentRoom);
     }
   }
 });
