@@ -1,9 +1,10 @@
 // Harvester code
-import { States } from 'Helpers/CreepData';
+import { CreepData } from 'Helpers/CreepData';
 
 const roleColdHarvester = {
   /** @param {Creep} creep **/
   run(creep: Creep): void {
+    const creepData: CreepData = new CreepData();
     if (creep.memory.sourceID === undefined) {
       creep.memory.sourceID = creep.room.find(FIND_SOURCES_ACTIVE)[0].id;
     }
@@ -11,7 +12,7 @@ const roleColdHarvester = {
     if (source != null) {
       if (creep.harvest(source) === ERR_NOT_IN_RANGE && creep.store.getFreeCapacity() > 0) {
         creep.moveTo(source);
-        creep.memory.state = States.Harvesting;
+        creep.memory.state = creepData.States.Harvesting;
       } else if (!(creep.store.getFreeCapacity() > 0) || !(source.energy > 0)) {
         const targets = creep.room.find(FIND_STRUCTURES, {
           filter: Structure => {
@@ -28,13 +29,13 @@ const roleColdHarvester = {
         if (closestTarget != null) {
           if (creep.transfer(closestTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             creep.moveTo(closestTarget);
-            creep.memory.state = States.Depositing;
+            creep.memory.state = creepData.States.Depositing;
           }
         }
       }
     } else {
       creep.say('This Source does not exist');
-      creep.memory.state = States.Idle;
+      creep.memory.state = creepData.States.Idle;
     }
   }
 };

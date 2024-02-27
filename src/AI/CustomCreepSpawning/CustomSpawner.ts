@@ -1,9 +1,10 @@
-import { BodyPartsCosts } from 'Helpers/CreepData';
+import { CreepData } from 'Helpers/CreepData';
 
 export class CustomSpawner {
   public getScalableHarvesterBodyData = function (energy: number): BodyPartConstant[] {
     const bodyPartList: BodyPartConstant[] = [];
-    const numberOfParts = Math.floor(energy / BodyPartsCosts.WORK) - 1;
+    const creepData: CreepData = new CreepData();
+    const numberOfParts = Math.floor(energy / creepData.BodyPartsCosts.WORK) - 1;
     bodyPartList.push(MOVE);
     for (let i = 0; i < numberOfParts; i++) {
       bodyPartList.push(WORK);

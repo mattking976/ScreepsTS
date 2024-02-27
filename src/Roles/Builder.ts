@@ -1,16 +1,20 @@
-import { States } from 'Helpers/CreepData';
+import { CreepData } from 'Helpers/CreepData';
 
 const roleBuilder = {
   /** @param {Creep} creep **/
   run(creep: Creep): void {
-    if (creep.memory.state === States.Building && creep.store[RESOURCE_ENERGY] === 0) {
-      creep.memory.state = States.Harvesting;
+    const creepData: CreepData = new CreepData();
+    if (creep.memory.state === creepData.States.Building && creep.store[RESOURCE_ENERGY] === 0) {
+      creep.memory.state = creepData.States.Harvesting;
     }
-    if (!(creep.memory.state === States.Building) && creep.store.getFreeCapacity() === 0) {
-      creep.memory.state = States.Building;
+    if (
+      !(creep.memory.state === creepData.States.Building) &&
+      creep.store.getFreeCapacity() === 0
+    ) {
+      creep.memory.state = creepData.States.Building;
     }
 
-    if (creep.memory.state === States.Building) {
+    if (creep.memory.state === creepData.States.Building) {
       const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
       if (targets.length) {
         if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
