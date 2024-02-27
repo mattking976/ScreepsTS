@@ -1,18 +1,22 @@
 // Upgrader AI code
 
-import { States } from 'Helpers/CreepData';
+import { CreepData } from 'Helpers/CreepData';
 
 const roleUpgrader = {
   /** @param creep **/
   run(creep: Creep): void {
-    if (creep.memory.state === States.Upgrading && creep.store[RESOURCE_ENERGY] === 0) {
-      creep.memory.state = States.Harvesting;
+    const creepData: CreepData = new CreepData();
+    if (creep.memory.state === creepData.States.Upgrading && creep.store[RESOURCE_ENERGY] === 0) {
+      creep.memory.state = creepData.States.Harvesting;
     }
-    if (!(creep.memory.state === States.Upgrading) && creep.store.getFreeCapacity() === 0) {
-      creep.memory.state = States.Upgrading;
+    if (
+      !(creep.memory.state === creepData.States.Upgrading) &&
+      creep.store.getFreeCapacity() === 0
+    ) {
+      creep.memory.state = creepData.States.Upgrading;
     }
 
-    if (creep.memory.state === States.Upgrading && creep.room.controller) {
+    if (creep.memory.state === creepData.States.Upgrading && creep.room.controller) {
       if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
         creep.moveTo(creep.room.controller);
       }

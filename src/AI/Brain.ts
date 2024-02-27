@@ -1,5 +1,11 @@
-import { Roles, States } from 'Helpers/CreepData';
+import { CreepData } from 'Helpers/CreepData';
+import { CustomSpawner } from './CustomCreepSpawning/CustomSpawner';
 import { RCL2Buildings } from './AutomatedBuilding/RoomControllerLevelPresets';
+import roleBuilder from 'Roles/Builder';
+import roleColdHarvester from 'Roles/ColdStartHavester';
+import roleHarvester from 'Roles/Harvester';
+import roleHauler from 'Roles/Hauler';
+import roleUpgrader from 'Roles/Upgrader';
 
 export class Brain {
   private name: string;
@@ -27,19 +33,17 @@ export class Brain {
   }
 
   public coldStart(): void {
+    const creepData: CreepData = new CreepData();
     // number of cold start harvesters in play
     const coldHarvesters = _.filter(
       Game.creeps,
-      creep => creep.memory.role === Roles.ColdHarvester
+      creep => creep.memory.role === creepData.Roles.ColdHarvester
     );
 
-    // number of harvesters in play
-    const harvesters = _.filter(Game.creeps, creep => creep.memory.role === Roles.Harvester);
-
-    // number of haulers in play
-    const haulers = _.filter(Game.creeps, creep => creep.memory.role === Roles.Hauler);
-
-    if (harvesters.length >= 1 && haulers.length >= 1) {
+    if (
+      creepData.getTotalCreepsByRole(creepData.Roles.Harvester).length >= 1 &&
+      creepData.getTotalCreepsByRole(creepData.Roles.Hauler).length >= 1
+    ) {
       this.setIsColdStarting(false);
       this.setMaxColdHarvesters(-1);
       coldHarvesters.forEach(coldHarvester => {
@@ -52,21 +56,99 @@ export class Brain {
     if (coldHarvesters.length < this.getMaxColdHarvesters()) {
       const newName = 'ColdHarvester' + Game.time.toString();
       Game.spawns.Spawn1.spawnCreep([CARRY, CARRY, WORK, MOVE], newName, {
-        memory: { role: Roles.ColdHarvester, sourceID: undefined, state: States.Idle }
+        memory: {
+          role: creepData.Roles.ColdHarvester,
+          sourceID: undefined,
+          state: creepData.States.Idle
+        }
       });
-    } else if (harvesters.length < 1) {
+    } else if (creepData.getTotalCreepsByRole(creepData.Roles.Harvester).length < 1) {
       const newName = 'Harvester' + Game.time.toString();
       Game.spawns.Spawn1.spawnCreep([WORK, WORK, MOVE], newName, {
         memory: {
-          role: Roles.Harvester,
+          role: creepData.Roles.Harvester,
           sourceID: undefined,
-          state: States.Idle
+          state: creepData.States.Idle
         }
       });
-    } else if (haulers.length < 1) {
+    } else if (creepData.getTotalCreepsByRole(creepData.Roles.Hauler).length < 1) {
       const newName = 'Hauler' + Game.time.toString();
       Game.spawns.Spawn1.spawnCreep([CARRY, CARRY, MOVE, MOVE], newName, {
-        memory: { role: Roles.Hauler, sourceID: undefined, state: States.Idle }
+        memory: { role: creepData.Roles.Hauler, sourceID: undefined, state: creepData.States.Idle }
+      });
+    }
+  }
+
+  public roleLogic(): void {
+    const creepData: CreepData = new CreepData();
+    // assigning role ai to creeps.
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      if (creep.memory.role === creepData.Roles.ColdHarvester) {
+        roleColdHarvester.run(creep);
+        continue;
+      }
+      if (creep.memory.role === creepData.Roles.Harvester) {
+        roleHarvester.run(creep);
+        continue;
+      }
+      if (creep.memory.role === creepData.Roles.Upgrader) {
+        roleUpgrader.run(creep);
+        continue;
+      }
+      if (creep.memory.role === creepData.Roles.Builder) {
+        roleBuilder.run(creep);
+        continue;
+      }
+      if (creep.memory.role === creepData.Roles.Hauler) {
+        roleHauler.run(creep);
+        continue;
+      }
+    }
+  }
+
+  public spawnLogic(roomEnergy: number): void {
+    const creepData: CreepData = new CreepData();
+    const customSpawner: CustomSpawner = new CustomSpawner();
+    if (
+      creepData.getTotalCreepsByRole(creepData.Roles.Harvester).length < creepData.maxHarvesters
+    ) {
+      const newName = 'Harvester' + Game.time.toString();
+      Game.spawns.Spawn1.spawnCreep(
+        customSpawner.getScalableHarvesterBodyData(roomEnergy),
+        newName,
+        {
+          memory: {
+            role: creepData.Roles.Harvester,
+            sourceID: undefined,
+            state: creepData.States.Idle
+          }
+        }
+      );
+    } else if (
+      creepData.getTotalCreepsByRole(creepData.Roles.Hauler).length < creepData.maxHaulers
+    ) {
+      const newName = 'Hauler' + Game.time.toString();
+      Game.spawns.Spawn1.spawnCreep([CARRY, CARRY, MOVE, MOVE], newName, {
+        memory: { role: creepData.Roles.Hauler, sourceID: undefined, state: creepData.States.Idle }
+      });
+    } else if (
+      creepData.getTotalCreepsByRole(creepData.Roles.Upgrader).length < creepData.maxUpgraders
+    ) {
+      const newName = 'Upgrader' + Game.time.toString();
+      Game.spawns.Spawn1.spawnCreep([WORK, CARRY, MOVE], newName, {
+        memory: {
+          role: creepData.Roles.Upgrader,
+          sourceID: undefined,
+          state: creepData.States.Idle
+        }
+      });
+    } else if (
+      creepData.getTotalCreepsByRole(creepData.Roles.Builder).length < creepData.maxBuilders
+    ) {
+      const newName = 'Builder' + Game.time.toString();
+      Game.spawns.Spawn1.spawnCreep([WORK, WORK, CARRY, MOVE], newName, {
+        memory: { role: creepData.Roles.Builder, sourceID: undefined, state: creepData.States.Idle }
       });
     }
   }
