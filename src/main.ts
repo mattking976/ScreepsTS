@@ -1,5 +1,6 @@
 import { Roles, States } from 'Helpers/CreepData';
 import { Brain } from 'AI/Brain';
+import { CustomSpawner } from 'AI/CustomCreepSpawning/CustomSpawner';
 import { ErrorMapper } from 'utils/ErrorMapper';
 import roleBuilder from 'Roles/Builder';
 import roleColdHarvester from 'Roles/ColdStartHavester';
@@ -26,6 +27,7 @@ const maxUpgraders = 2;
 const maxBuilders = 2;
 
 const brain = new Brain(false);
+const customSpawner = new CustomSpawner();
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -36,6 +38,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
       delete Memory.creeps[name];
     }
   }
+
+  const totalSpawnEnergy = Game.spawns.Spawn1.room.energyCapacityAvailable;
 
   // number of harvesters in play
   const harvesters = _.filter(Game.creeps, creep => creep.memory.role === Roles.Harvester);
@@ -51,13 +55,17 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   if (harvesters.length < maxHarvesters) {
     const newName = 'Harvester' + Game.time.toString();
-    Game.spawns.Spawn1.spawnCreep([WORK, WORK, MOVE], newName, {
-      memory: {
-        role: Roles.Harvester,
-        sourceID: undefined,
-        state: States.Idle
+    Game.spawns.Spawn1.spawnCreep(
+      customSpawner.getScalableHarvesterBodyData(totalSpawnEnergy),
+      newName,
+      {
+        memory: {
+          role: Roles.Harvester,
+          sourceID: undefined,
+          state: States.Idle
+        }
       }
-    });
+    );
   } else if (haulers.length < maxHaulers) {
     const newName = 'Hauler' + Game.time.toString();
     Game.spawns.Spawn1.spawnCreep([CARRY, CARRY, MOVE, MOVE], newName, {
