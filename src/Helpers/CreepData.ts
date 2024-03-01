@@ -1,32 +1,4 @@
-declare global {
-  interface memory {
-    memory: CreepMemory;
-  }
-
-  // creep base memory
-  interface CreepMemory {
-    role: string;
-    sourceID?: Id<Source>;
-    state: string;
-  }
-}
-
-interface CreepRoles {
-  ColdHarvester: string;
-  Harvester: string;
-  Upgrader: string;
-  Hauler: string;
-  Builder: string;
-}
-
-interface CreepStates {
-  Idle: string;
-  Harvesting: string;
-  Upgrading: string;
-  Depositing: string;
-  Building: string;
-}
-
+import { CreepRoles, CreepStates } from './CreepInterfaces';
 export class CreepData {
   public readonly Roles: CreepRoles = {
     ColdHarvester: 'ColdHarvester',
