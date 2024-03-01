@@ -4,8 +4,7 @@ import { CreepData } from 'Helpers/CreepData';
 
 const roleUpgrader = {
   /** @param creep **/
-  run(creep: Creep): void {
-    const creepData: CreepData = new CreepData();
+  run(creep: Creep, creepData: CreepData): void {
     if (creep.memory.state === creepData.States.Upgrading && creep.store[RESOURCE_ENERGY] === 0) {
       creep.memory.state = creepData.States.Harvesting;
     }

@@ -1,7 +1,9 @@
 import { Brain } from 'AI/Brain';
+import { CreepData } from 'Helpers/CreepData';
 import { ErrorMapper } from 'utils/ErrorMapper';
 
-const brain = new Brain(false);
+const brain: Brain = new Brain(false);
+const creepData: CreepData = new CreepData();
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -15,9 +17,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   const totalSpawnEnergy = Game.spawns.Spawn1.room.energyCapacityAvailable;
 
-  brain.spawnLogic(totalSpawnEnergy);
-  brain.roleLogic();
-  brain.coldStart();
+  brain.spawnLogic(totalSpawnEnergy, creepData);
+  brain.roleLogic(creepData);
+  brain.coldStart(creepData);
 
   // brain functions for automated room building
   for (const room in Game.rooms) {

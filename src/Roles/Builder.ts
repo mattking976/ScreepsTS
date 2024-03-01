@@ -2,8 +2,7 @@ import { CreepData } from 'Helpers/CreepData';
 
 const roleBuilder = {
   /** @param {Creep} creep **/
-  run(creep: Creep): void {
-    const creepData: CreepData = new CreepData();
+  run(creep: Creep, creepData: CreepData): void {
     if (creep.memory.state === creepData.States.Building && creep.store[RESOURCE_ENERGY] === 0) {
       creep.memory.state = creepData.States.Harvesting;
     }

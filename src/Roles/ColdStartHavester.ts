@@ -3,8 +3,7 @@ import { CreepData } from 'Helpers/CreepData';
 
 const roleColdHarvester = {
   /** @param {Creep} creep **/
-  run(creep: Creep): void {
-    const creepData: CreepData = new CreepData();
+  run(creep: Creep, creepData: CreepData): void {
     if (creep.memory.sourceID === undefined) {
       creep.memory.sourceID = creep.room.find(FIND_SOURCES_ACTIVE)[0].id;
     }

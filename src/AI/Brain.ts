@@ -8,11 +8,9 @@ import roleHauler from 'Roles/Hauler';
 import roleUpgrader from 'Roles/Upgrader';
 
 export class Brain {
-  private name: string;
   private isColdStarting: boolean;
   private maxColdHarvesters: number;
   public constructor(coldStart: boolean) {
-    this.name = 'brain';
     this.isColdStarting = coldStart;
     this.maxColdHarvesters = 1;
   }
@@ -32,8 +30,7 @@ export class Brain {
     this.maxColdHarvesters = max;
   }
 
-  public coldStart(): void {
-    const creepData: CreepData = new CreepData();
+  public coldStart(creepData: CreepData): void {
     // number of cold start harvesters in play
     const coldHarvesters = _.filter(
       Game.creeps,
@@ -79,13 +76,12 @@ export class Brain {
     }
   }
 
-  public roleLogic(): void {
-    const creepData: CreepData = new CreepData();
+  public roleLogic(creepData: CreepData): void {
     // assigning role ai to creeps.
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       if (creep.memory.role === creepData.Roles.ColdHarvester) {
-        roleColdHarvester.run(creep);
+        roleColdHarvester.run(creep, creepData);
         continue;
       }
       if (creep.memory.role === creepData.Roles.Harvester) {
@@ -93,11 +89,11 @@ export class Brain {
         continue;
       }
       if (creep.memory.role === creepData.Roles.Upgrader) {
-        roleUpgrader.run(creep);
+        roleUpgrader.run(creep, creepData);
         continue;
       }
       if (creep.memory.role === creepData.Roles.Builder) {
-        roleBuilder.run(creep);
+        roleBuilder.run(creep, creepData);
         continue;
       }
       if (creep.memory.role === creepData.Roles.Hauler) {
@@ -107,8 +103,7 @@ export class Brain {
     }
   }
 
-  public spawnLogic(roomEnergy: number): void {
-    const creepData: CreepData = new CreepData();
+  public spawnLogic(roomEnergy: number, creepData: CreepData): void {
     const customSpawner: CustomSpawner = new CustomSpawner();
     if (
       creepData.getTotalCreepsByRole(creepData.Roles.Harvester).length < creepData.maxHarvesters
