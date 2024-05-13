@@ -15,6 +15,7 @@ export class Brain {
     this.maxColdHarvesters = 1;
   }
 
+  // #region Getters and Setters
   public getIsColdStarting(): boolean {
     return this.isColdStarting;
   }
@@ -29,7 +30,9 @@ export class Brain {
   private setMaxColdHarvesters(max: number): void {
     this.maxColdHarvesters = max;
   }
+  // #endregion
 
+  // #region Cold Start Logic
   public coldStart(creepData: CreepData): void {
     // number of cold start harvesters in play
     const coldHarvesters = _.filter(
@@ -75,7 +78,9 @@ export class Brain {
       });
     }
   }
+  // #endregion
 
+  // #region Role Logic
   public roleLogic(creepData: CreepData): void {
     // assigning role ai to creeps.
     for (const name in Game.creeps) {
@@ -85,7 +90,7 @@ export class Brain {
         continue;
       }
       if (creep.memory.role === creepData.Roles.Harvester) {
-        roleHarvester.run(creep);
+        roleHarvester.run(creep, creepData);
         continue;
       }
       if (creep.memory.role === creepData.Roles.Upgrader) {
@@ -102,7 +107,9 @@ export class Brain {
       }
     }
   }
+  // #endregion
 
+  // #region Spawn Logic
   public spawnLogic(roomEnergy: number, creepData: CreepData): void {
     const customSpawner: CustomSpawner = new CustomSpawner();
     if (
@@ -147,16 +154,9 @@ export class Brain {
       });
     }
   }
+  // #endregion
 
-  public setSourceAtBirth(name: string): Id<Source> {
-    const sources: Source[] = this.getSources(name);
-    return sources[0].id;
-  }
-
-  private getSources(name: string): Source[] {
-    return Game.creeps[name].room.find(FIND_SOURCES_ACTIVE);
-  }
-
+  // #region Automated building Logic (function)
   public buildingswitcher(roomLevel: number, room: Room): void {
     // All controlled rooms start at RCL 1 (update code for reserved rooms when applicable)
     switch (roomLevel) {
@@ -169,4 +169,5 @@ export class Brain {
         break;
     }
   }
+  // #endregion
 }
