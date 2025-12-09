@@ -40,7 +40,7 @@ export class CreepData {
   }
 
   public getSourceIds(creep: Creep): string[] {
-    this.sourceIds = Game.rooms[creep.room.name].memory.creepSourceIds;
+    this.sourceIds = []; // Game.rooms[creep.room.name].memory.creepSourceIds;
     return this.sourceIds;
   }
 

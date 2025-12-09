@@ -5,7 +5,7 @@ const roleHarvester = {
   run(creep: Creep, creepData: CreepData): void {
     const sources: Source[] = creep.room.find(FIND_SOURCES);
     if (creep.memory.sourceID === undefined) {
-      creepData.setRoomSourceIds(Game.rooms[creep.room.name].memory.activeSourceIds);
+      // creepData.setRoomSourceIds(Game.rooms[creep.room.name].memory.activeSourceIds);
       for (const source of sources) {
         if (creepData.getSourceIds(creep).includes(source.id) === false) {
           creep.memory.sourceID = source.id;
