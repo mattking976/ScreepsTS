@@ -11,6 +11,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
+      if (Memory.creeps[name].role === creepData.Roles.Harvester) {
+        const sourceId = Memory.creeps[name].sourceID;
+        if (sourceId) {
+          creepData.removeIdFromSourceIds(sourceId);
+        }
+      }
       delete Memory.creeps[name];
     }
   }
